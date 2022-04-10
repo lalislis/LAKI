@@ -17,6 +17,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('company_id');
             $table->foreignId('user_id');
+            $table->foreignId('media_id');
             $table->string('name');
             $table->string('position');
             $table->timestamps();
