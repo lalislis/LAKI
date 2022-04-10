@@ -14,6 +14,14 @@ class CompaniesSeeder extends Seeder
      */
     public function run()
     {
-        //
+        DB::table('profiles')->insert([
+            'name' => 'PT Laki Nusantara',
+            'address' => 'Jakarta',
+            'phone' => '021 435 678',
+            'email' => 'info@laki.com',
+            'website' => 'laki.com',
+            'created_at' => now(),
+            'updated_at' => now()
+        ]);
     }
 }
