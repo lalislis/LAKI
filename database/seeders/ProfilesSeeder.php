@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class ProfilesSeeder extends Seeder
 {
@@ -19,7 +20,7 @@ class ProfilesSeeder extends Seeder
             'user_id' => '1',
             'media_id' => '1',
             'name' => 'John Doe',
-            'posotion' => 'Back End Developer',
+            'position' => 'Back End Developer',
             'created_at' => now(),
             'updated_at' => now()
         ]);
@@ -29,7 +30,7 @@ class ProfilesSeeder extends Seeder
             'user_id' => '2',
             'media_id' => '2',
             'name' => 'Jack',
-            'posotion' => 'Front End Developer',
+            'position' => 'Front End Developer',
             'created_at' => now(),
             'updated_at' => now()
         ]);
