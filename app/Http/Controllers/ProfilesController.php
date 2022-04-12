@@ -31,6 +31,7 @@ class ProfilesController extends Controller
 
         $user = User::where('id', $profile->user_id);
         $user->update([
+            'name' => $request->name,
             'email' => $request->email
         ]);
 
