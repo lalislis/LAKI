@@ -9,31 +9,30 @@ use App\Models\Media;
 class ProfilesController extends Controller
 {
     public function index(){
-        $profiles = Profiles::all();
+        $profiles = Profiles::latest()->get();
         return $profiles;
     }
 
     public function show(Profiles $profile){
-        return $profil;
+        return $profile;
     }
 
     public function update(Request $request, Profiles $profile){
-        $this->validate($request, [
+        $request->validate([
             'company_id' => 'required',
-            'media_id' => 'required',
             'name' => 'required',
             'position' => 'required'
         ]);
 
-        $media = Media::where('user_id', $profile->user_id);
-        $media->storage_path = $request->input('storage_path');
-        $profile->company_id = $request-input('company_id');
-        $profile->media_id = $media->id;
-        $profile->name = $request-input('name');
-        $profile->position = $request-input('position');
-        $media->update();
-        $profile->update();
+        
+        $profile->update([
+            'company_id' => $request->company_id,
+            'user_id' => $request->user_id,
+            'media_id' => $request->media_id,
+            'name' => $request->name,
+            'position' => $request->position
+        ]);
 
-        return $profil;
+        return $profile;
     }
 }
