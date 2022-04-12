@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Profiles;
 use App\Models\Media;
+use App\Models\User;
 
 class ProfilesController extends Controller
 {
@@ -19,20 +20,21 @@ class ProfilesController extends Controller
 
     public function update(Request $request, Profiles $profile){
         $request->validate([
-            'company_id' => 'required',
             'name' => 'required',
-            'position' => 'required'
+            'email' => 'required'
         ]);
 
         
         $profile->update([
-            'company_id' => $request->company_id,
-            'user_id' => $request->user_id,
-            'media_id' => $request->media_id,
-            'name' => $request->name,
-            'position' => $request->position
+            'name' => $request->name
+        ]);
+
+        $user = User::where('id', $profile->user_id);
+        $user->update([
+            'email' => $request->email
         ]);
 
         return $profile;
+        return $user;
     }
 }
