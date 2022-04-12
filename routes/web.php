@@ -17,6 +17,3 @@ use App\Http\Controllers\ProfilesController;
 Route::get('/', function () {
     return view('welcome');
 });
-Route::get('/profiles', [ProfilesController::class, 'index']);
-Route::get('/profiles/{profile:id}', [ProfilesController::class, 'show']);
-Route::post('/profiles/update/{profile:id}', [ProfilesController::class, 'update']);
