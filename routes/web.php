@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ProfilesController;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,3 +17,6 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+Route::get('/profiles', [ProfilesController::class, 'index']);
+Route::get('/profiles/{profile:id}', [ProfilesController::class, 'show']);
+Route::post('/profiles/update/{profile:id}', [ProfilesController::class, 'update']);
