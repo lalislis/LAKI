@@ -14,27 +14,27 @@ class ProfilesController extends Controller
         return $profiles;
     }
 
-    public function show(Profiles $profile){
+    public function show(User $user){
+        $profile = Profiles::where('user_id', $user->id)->get();
         return $profile;
     }
 
-    public function update(Request $request, Profiles $profile){
+    public function update(Request $request, User $user){
         $request->validate([
             'name' => 'required',
             'email' => 'required'
         ]);
 
-        
-        $profile->update([
-            'name' => $request->name
-        ]);
-
-        $user = User::where('id', $profile->user_id);
         $user->update([
             'email' => $request->email
         ]);
 
+        $updateProfile = Profiles::where('user_id', $user->id)->update([
+            'name' => $request->name
+        ]);
+        
+        $profile = Profiles::where('user_id', $user->id)->get();
+
         return $profile;
-        return $user;
     }
 }
