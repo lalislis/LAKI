@@ -15,7 +15,7 @@ class ProfilesController extends Controller
     }
 
     public function show(User $user){
-        $profile = Profiles::where('user_id', $user->id)->get();
+        $profile = Profiles::whereBelongsTo($user)->get();
         return $profile;
     }
 
@@ -29,11 +29,11 @@ class ProfilesController extends Controller
             'email' => $request->email
         ]);
 
-        $updateProfile = Profiles::where('user_id', $user->id)->update([
+        $updateProfile = Profiles::whereBelongsTo($user)->update([
             'name' => $request->name
         ]);
         
-        $profile = Profiles::where('user_id', $user->id)->get();
+        $profile = Profiles::whereBelongsTo($user)->get();
 
         return $profile;
     }
