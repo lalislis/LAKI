@@ -22,6 +22,9 @@ class PresencesController extends Controller
             'storage_path' => $foto->getClientOriginalName()
         ]);
 
+        $dir = 'image/presensi';
+        $foto->move($dir,$foto->getClientOriginalName());
+
         $presence = Presences::create([
             'user_id' => $user->id,
             'media_id' => $media->id
