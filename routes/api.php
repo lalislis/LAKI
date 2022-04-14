@@ -20,7 +20,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 Route::get('/profiles', [ProfilesController::class, 'index']);
-Route::get('/profiles/{profile:id}', [ProfilesController::class, 'show']);
-Route::post('/profiles/update/{profile:id}', [ProfilesController::class, 'update']);
+Route::get('/profiles/{user:id}', [ProfilesController::class, 'show']);
+Route::post('/profiles/update/{user:id}', [ProfilesController::class, 'update']);
 
 Route::post('/presence/{user:id}', [PresencesController::class, 'store']);
