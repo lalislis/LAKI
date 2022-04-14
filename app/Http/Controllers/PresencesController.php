@@ -30,9 +30,9 @@ class PresencesController extends Controller
             'media_id' => $media->id
         ]);
         
-        $data = $presence->where('id', $presence->id)->with('media')->get();
+        $presence = $presence->where('id', $presence->id)->get();
 
-        return $data;
+        return $presence;
         
     }
 }
