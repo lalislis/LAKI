@@ -37,4 +37,25 @@ class ProfilesController extends Controller
 
         return $profile;
     }
+
+    public function updateFoto(Request $request, User $user){
+        $request->validate([
+            'foto' => 'required'
+        ]);
+
+        $profile = Profiles::whereBelongsTo($user)->first();
+
+        $foto = $request->file('foto');
+        $dir = 'image/profile';
+        $foto->move($dir,$foto->getClientOriginalName());
+
+        $media = Media::where('id', $profile->media_id)->first();
+        $media->update([
+            'storage_path' => $foto->getClientOriginalName()
+        ]);
+
+        $profile = Profiles::where('media_id', $media->id)->first();
+
+        return $profile;
+    }
 }

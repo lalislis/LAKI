@@ -22,5 +22,6 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::get('/profiles', [ProfilesController::class, 'index']);
 Route::get('/profiles/{user:id}', [ProfilesController::class, 'show']);
 Route::post('/profiles/update/{user:id}', [ProfilesController::class, 'update']);
+Route::post('/profiles/updatefoto/{user:id}', [ProfilesController::class, 'updateFoto']);
 
 Route::post('/presence/{user:id}', [PresencesController::class, 'store']);
