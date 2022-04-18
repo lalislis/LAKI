@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\{User, Profile};
+use App\Models\{User, Profiles};
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Arr;
 
 class AuthController extends Controller
 {
@@ -40,13 +41,13 @@ class AuthController extends Controller
         return response()->json([
             'success' => true,
             'messages' => 'Success Login',
-            'data' => $user->map->except('password'),
+            'data' => $user,
             'access_token' => $token,
             'token_type' => 'Bearer',
         ]);
     }
 
-    public function register(User $user)
+    public function register(User $user, Request $request)
     {
         $req = $request->all();
         $validator = Validator::make($req, [
@@ -55,7 +56,8 @@ class AuthController extends Controller
             'role' => ['required'],
             'name' => ['required', 'string'],
             'position' => ['required', 'string'],
-            'company_id' => ['required'],
+            'media_id' => ['required', 'integer'],
+            'company_id' => ['required', 'integer'],
         ]);
 
         if($validator->fails()) {
@@ -65,7 +67,7 @@ class AuthController extends Controller
                 'data' => ''
             ], 422);
         }
-        
+
         $user->create([
             'email' => $request->email,
             'password' => bcrypt($request->password),
@@ -73,18 +75,21 @@ class AuthController extends Controller
             'remember_token' => $request->remember_token,
         ]);
 
-        Profile::create([
-            'user_id' => $user->id,
+        $getUser = User::where('email', $request->email)->first();
+
+        Profiles::create([
+            'user_id' => $getUser->id,
             'media_id' => $request->media_id,
             'name' => $request->name,
             'position' => $request->position,
             'company_id' => $request->company_id
         ]);
+        $data = Arr::except($req, ['password']);
 
         return response()->json([
             'success' => true,
             'messages' => 'Success Register',
-            'data' => $req->map->except('password'),
+            'data' => $data,
         ]);
     }
 
