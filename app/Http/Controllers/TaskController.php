@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Task;
 use Illuminate\Http\Request;
+use Auth;
 
 class TaskController extends Controller
 {
@@ -67,6 +68,12 @@ class TaskController extends Controller
     {
         $data = $request->except('_token','_method');
         $task->update($data);
+
+        return response()->json([
+            'status' => true,
+            'messages' => 'Success Update Data',
+            'data' => $data,
+        ]);
     }
 
     /**
@@ -81,7 +88,6 @@ class TaskController extends Controller
         return response()->json([
             'status' => true,
             'messages' => 'Success Delete Data',
-            'data' => $task,
         ]);
     }
 }

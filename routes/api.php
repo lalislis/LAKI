@@ -26,7 +26,7 @@ Route::group(['middleware' => ['auth:sanctum']], function(){
     Route::post('/profiles/update/{user:id}', [ProfilesController::class, 'update']);
     Route::post('/profiles/updatefoto/{user:id}', [ProfilesController::class, 'updateFoto']);
     Route::post('/presence/{user:id}', [PresencesController::class, 'store']);
-    Route::post('/logout', 'AuthController@logout');
+    Route::get('/logout', 'AuthController@logout');
     Route::apiResource('/tasks', 'TaskController');
 });
 
