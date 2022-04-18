@@ -34,5 +34,15 @@ class ProfilesSeeder extends Seeder
             'created_at' => now(),
             'updated_at' => now()
         ]);
+
+        DB::table('profiles')->insert([
+            'company_id' => '2',
+            'user_id' => '2',
+            'media_id' => '2',
+            'name' => 'Jack',
+            'position' => 'Front End Developer',
+            'created_at' => now(),
+            'updated_at' => now()
+        ]);
     }
 }

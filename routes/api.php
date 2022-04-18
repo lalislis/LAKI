@@ -15,13 +15,19 @@ use App\Http\Controllers\PresencesController;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+Route::post('/register', 'AuthController@register');
+Route::post('/login', 'AuthController@login');
+
+Route::group(['middleware' => ['auth:sanctum']], function(){
+    Route::get('/profiles', [ProfilesController::class, 'index']);
+    Route::get('/profiles/{user:id}', [ProfilesController::class, 'show']);
+    Route::post('/profiles/update/{user:id}', [ProfilesController::class, 'update']);
+    Route::post('/profiles/updatefoto/{user:id}', [ProfilesController::class, 'updateFoto']);
+    Route::post('/presence/{user:id}', [PresencesController::class, 'store']);
+    Route::post('/logout', 'AuthController@logout');
+    Route::apiResource('/tasks', 'TaskController');
+});
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
-Route::get('/profiles', [ProfilesController::class, 'index']);
-Route::get('/profiles/{user:id}', [ProfilesController::class, 'show']);
-Route::post('/profiles/update/{user:id}', [ProfilesController::class, 'update']);
-Route::post('/profiles/updatefoto/{user:id}', [ProfilesController::class, 'updateFoto']);
-
-Route::post('/presence/{user:id}', [PresencesController::class, 'store']);
