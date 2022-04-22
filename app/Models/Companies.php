@@ -8,4 +8,6 @@ use Illuminate\Database\Eloquent\{Model, SoftDeletes};
 class Companies extends Model
 {
     use HasFactory, SoftDeletes;
+
+    protected $guarded = ['id'];
 }
