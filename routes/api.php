@@ -30,6 +30,11 @@ Route::group(['middleware' => ['auth:sanctum']], function(){
     Route::apiResource('/tasks', 'TaskController');
 });
 
+Route::get('/adminsuperuser', 'AdminController@showSuperUser');
+Route::post('/adminsuperuser/register', 'AdminController@registerSuperUser');
+Route::get('/admincompany', 'AdminController@showCompanies');
+Route::post('/admincompany/register', 'AdminController@registerCompany');
+
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
