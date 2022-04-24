@@ -46,4 +46,12 @@ class User extends Authenticatable
     public function profile(){
         return $this->hasOne(Profiles::class);
     }
+
+    public function task(){
+        return $this->hasMany(Task::class);
+    }
+
+    public function user(){
+        return $this->hasMany(Presences::class);
+    }
 }

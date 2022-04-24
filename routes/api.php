@@ -18,22 +18,23 @@ use App\Http\Controllers\TaskController;
 |
 */
 Route::post('/register', 'AuthController@register');
-Route::post('/login', 'AuthController@login');
+Route::post('/login', 'AuthController@login')->name('login');
 
 Route::group(['middleware' => ['auth:sanctum']], function(){
-    Route::get('/profiles', [ProfilesController::class, 'index']);
-    Route::get('/profiles/{user:id}', [ProfilesController::class, 'show']);
-    Route::post('/profiles/update/{user:id}', [ProfilesController::class, 'update']);
-    Route::post('/profiles/updatefoto/{user:id}', [ProfilesController::class, 'updateFoto']);
-    Route::post('/presence/{user:id}', [PresencesController::class, 'store']);
+    Route::get('/profiles', 'ProfilesController@index');
+    Route::get('/profiles/{user:id}', 'ProfilesController@show');
+    Route::post('/profiles/update/{user:id}', 'ProfilesController@update');
+    Route::post('/profiles/updatefoto/{user:id}', 'ProfilesController@updateFoto');
+    Route::post('/presence/{user:id}', 'PresencesController@clockIn');
     Route::get('/logout', 'AuthController@logout');
     Route::apiResource('/tasks', 'TaskController');
+    Route::get('/adminsuperuser', 'AdminController@showSuperUser');
+    Route::post('/adminsuperuser/register', 'AdminController@registerSuperUser');
+    Route::get('/admincompany', 'AdminController@showCompanies');
+    Route::post('/admincompany/register', 'AdminController@registerCompany');
 });
 
-Route::get('/adminsuperuser', 'AdminController@showSuperUser');
-Route::post('/adminsuperuser/register', 'AdminController@registerSuperUser');
-Route::get('/admincompany', 'AdminController@showCompanies');
-Route::post('/admincompany/register', 'AdminController@registerCompany');
+Route::get('/dashboard/{user:id}', 'ProfilesController@dashboard');
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();

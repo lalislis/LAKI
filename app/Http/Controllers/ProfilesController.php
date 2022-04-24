@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Models\Profiles;
 use App\Models\Media;
 use App\Models\User;
+use App\Models\Task;
+use App\Models\Presences;
 
 class ProfilesController extends Controller
 {
@@ -15,7 +18,7 @@ class ProfilesController extends Controller
     }
 
     public function show(User $user){
-        $profile = Profiles::whereBelongsTo($user)->get();
+        $profile = Profiles::whereBelongsTo($user)->first();
         return $profile;
     }
 
@@ -33,7 +36,7 @@ class ProfilesController extends Controller
             'name' => $request->name
         ]);
         
-        $profile = Profiles::whereBelongsTo($user)->get();
+        $profile = Profiles::whereBelongsTo($user)->first();
 
         return $profile;
     }
@@ -57,5 +60,17 @@ class ProfilesController extends Controller
         $profile = Profiles::where('media_id', $media->id)->first();
 
         return $profile;
+    }
+
+    public function dashboard(User $user){
+        $profile = Profiles::whereBelongsTo($user)->first();
+        $task = Task::whereBelongsTo($user)->first();
+        $presence = Presences::whereBelongsTo($user)->first();
+
+        $dt = new DateTime($presence->clock_in);
+        $date = $dt->toDateString();
+        $hour = $dt->toTimeString();
+
+        return [$profile, $task, $presence];
     }
 }

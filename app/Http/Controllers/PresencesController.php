@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 
 class PresencesController extends Controller
 {
-    public function store(Request $request, User $user){
+    public function clockIn(Request $request, User $user){
         $request->validate([
             'foto' => 'required'
         ]);
@@ -30,7 +30,7 @@ class PresencesController extends Controller
             'media_id' => $media->id
         ]);
         
-        $presence = $presence->where('id', $presence->id)->get();
+        $presence = $presence->where('id', $presence->id)->first();
 
         return $presence;
         
