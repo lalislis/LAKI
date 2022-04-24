@@ -10,7 +10,7 @@ use App\Models\Companies;
 class AdminController extends Controller
 {
     public function showSuperUser(){
-        $superUser = User::where('role', '3')->with('profile')->get();
+        $superUser = User::where('role', '2')->with('profile')->get();
 
         return $superUser;
     }
@@ -34,7 +34,7 @@ class AdminController extends Controller
         $user = User::create([
             'email' => $request->email,
             'password' => $request->password,
-            'role' => "Super User"
+            'role' => "2"
         ]);
 
         $profile = Profiles::create([
