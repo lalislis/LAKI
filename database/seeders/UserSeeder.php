@@ -32,7 +32,7 @@ class UserSeeder extends Seeder
         DB::table('users')->insert([
             'email' => 'admin@email.com',
             'password' => bcrypt('admin'),
-            'role' => 'admin',
+            'role' => '3',
             'created_at' => now(),
             'updated_at' => now()
         ]);

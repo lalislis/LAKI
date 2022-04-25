@@ -26,12 +26,18 @@ Route::group(['middleware' => ['auth:sanctum']], function(){
     Route::post('/profiles/update/{user:id}', 'ProfilesController@update');
     Route::post('/profiles/updatefoto/{user:id}', 'ProfilesController@updateFoto');
     Route::post('/presence/{user:id}', 'PresencesController@clockIn');
-    Route::get('/logout', 'AuthController@logout');
+    Route::post('/logout', 'AuthController@logout');
     Route::apiResource('/tasks', 'TaskController');
     Route::get('/adminsuperuser', 'AdminController@showSuperUser');
     Route::post('/adminsuperuser/register', 'AdminController@registerSuperUser');
     Route::get('/admincompany', 'AdminController@showCompanies');
     Route::post('/admincompany/register', 'AdminController@registerCompany');
+    Route::get('/karyawan', 'KaryawanController@index');
+    Route::get('/superuser', 'SuperUserController@index');
+    Route::get('/superuser/user/{user:id}', 'SuperUserController@showKaryawan');
+    Route::get('/superuser/task/{user:id}', 'SuperUserController@showTask');
+    Route::delete('/superuser/user/{user:id}', 'SuperUserController@deleteKaryawan');
+    Route::post('/superuser', 'SuperUserController@createKaryawan');
 });
 
 Route::get('/dashboard/{user:id}', 'ProfilesController@dashboard');

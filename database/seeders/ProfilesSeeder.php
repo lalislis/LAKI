@@ -37,10 +37,10 @@ class ProfilesSeeder extends Seeder
 
         DB::table('profiles')->insert([
             'company_id' => '2',
-            'user_id' => '2',
+            'user_id' => '3',
             'media_id' => '2',
-            'name' => 'Jack',
-            'position' => 'Front End Developer',
+            'name' => 'Crane',
+            'position' => 'Full Stack Developer',
             'created_at' => now(),
             'updated_at' => now()
         ]);
