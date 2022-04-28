@@ -17,8 +17,11 @@ use App\Http\Controllers\TaskController;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
-Route::post('/register', 'AuthController@register');
-Route::post('/login', 'AuthController@login')->name('login');
+Route::group(['prefix' => 'auth'], function(){
+    Route::post('/register', 'AuthController@register');
+    Route::post('/login', 'AuthController@login')->name('login');
+    Route::post('/logout', 'AuthController@logout')->name('logout');
+});
 
 Route::group(['middleware' => ['auth:sanctum']], function(){
     Route::get('/profiles', 'ProfilesController@index');
