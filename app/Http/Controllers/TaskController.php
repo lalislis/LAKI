@@ -19,7 +19,10 @@ class TaskController extends Controller
         $tasks = User::whereHas(
             'profile.company',
             fn ($query) => $query->where('id', Auth::user()->profile->company_id)
-        )->with('tasks', fn ($query) => $query->whereDate('created_at', Carbon::today()))->get();
+        )
+            ->with('tasks', fn ($query) => $query->whereDate('created_at', Carbon::today()))
+            ->with('profile')
+            ->get();
 
         $index = $tasks->search(fn ($task) => $task->id == Auth::user()->id);
         $self = $tasks->pull($index);

@@ -11,7 +11,7 @@ class Profiles extends Model
 
     protected $table = 'profiles';
     protected $guarded = [];
-    protected $with = ['user', 'company', 'media'];
+    // protected $with = ['user', 'company', 'media'];
 
     public function user()
     {
