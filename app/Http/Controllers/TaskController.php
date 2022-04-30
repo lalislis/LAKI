@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Task;
+use App\Models\{Task, User, Profiles};
 use Illuminate\Http\Request;
 use Auth;
+use Carbon\Carbon;
 
 class TaskController extends Controller
 {
@@ -15,63 +16,40 @@ class TaskController extends Controller
      */
     public function index()
     {
-        $task = Task::all();
+        $task = Task::whereHas('user.profile', function($query) {
+            $query->where('company_id', Auth::user()->profile->company_id);
+        })->whereDate('created_at', Carbon::today())->get();
+        if(!task){
+            return response()->json([
+                'success' => false,
+                'message' => 'Data task tidak ditemukan'
+            ]);
+        }
         return response()->json([
-            'status' => true,
-            'messages' => 'Success Get Data',
+            'success' => true,
+            'messages' => 'Data retrieved succesfully',
             'data' => $task,
         ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        $data = $request->except('_token');
-        $data['user_id'] = Auth::id();
-        Task::create($data);
-
-        return response()->json([
-            'status' => true,
-            'messages' => 'Success Create Data',
-            'data' => $data,
-        ]);
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Task  $task
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Task $task)
-    {
-        return response()->json([
-            'status' => true,
-            'messages' => 'Success Get Data',
-            'data' => $task,
-        ]);
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Task  $task
-     * @return \Illuminate\Http\Response
-     */
     public function update(Request $request, Task $task)
     {
         $data = $request->except('_token','_method');
-        $task->update($data);
+        $task = Task::where('user_id', Auth::user()->id)->whereDate('created_at', Carbon::today())->first();
+        if(!$task){
+            $task = new Task;
+            $task->user_id = Auth::user()->id;
+            $task->title = $request->title;
+            $task->body = $request->body;
+            $task->save();
+        }
+        else{
+            $task->update($data);
+        }
 
         return response()->json([
-            'status' => true,
-            'messages' => 'Success Update Data',
+            'success' => true,
+            'messages' => 'Your task has been updated succesfully',
             'data' => $data,
         ]);
     }
@@ -86,7 +64,7 @@ class TaskController extends Controller
     {
         $task->delete();
         return response()->json([
-            'status' => true,
+            'success' => true,
             'messages' => 'Success Delete Data',
         ]);
     }

@@ -30,7 +30,8 @@ Route::group(['middleware' => ['auth:sanctum']], function(){
     Route::post('/profiles/updatefoto/{user:id}', 'ProfilesController@updateFoto');
     Route::post('/presence/{user:id}', 'PresencesController@clockIn');
     Route::post('/logout', 'AuthController@logout');
-    Route::apiResource('/tasks', 'TaskController');
+    Route::get('/tasks', 'TaskController@index');
+    Route::put('/tasks', 'TaskController@update');
     Route::get('/adminsuperuser', 'AdminController@showSuperUser');
     Route::post('/adminsuperuser/register', 'AdminController@registerSuperUser');
     Route::get('/admincompany', 'AdminController@showCompanies');
