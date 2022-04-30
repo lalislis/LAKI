@@ -16,20 +16,15 @@ class TaskController extends Controller
      */
     public function index()
     {
-        $task = Task::whereHas('user.profile', function ($query) {
-            $query->where('company_id', Auth::user()->profile->company_id);
-        })->whereDate('created_at', Carbon::today())->get();
+        $tasks = User::whereHas(
+            'profile.company',
+            fn ($query) => $query->where('id', Auth::user()->profile->company_id)
+        )->with('tasks', fn ($query) => $query->whereDate('created_at', Carbon::today()))->get();
 
-        if (!$task) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Data task tidak ditemukan'
-            ]);
-        }
         return response()->json([
             'success' => true,
             'messages' => 'Data retrieved succesfully',
-            'data' => $task,
+            'data' => $tasks,
         ]);
     }
 
