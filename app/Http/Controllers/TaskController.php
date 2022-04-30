@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\{Task, User, Profiles};
+use App\Models\{Task, User};
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 
 class TaskController extends Controller
 {
@@ -38,11 +39,25 @@ class TaskController extends Controller
     public function update(Request $request, Task $task)
     {
         $data = $request->except('_token', '_method');
+        $req = $request->all();
+
+        $validator = Validator::make($req, [
+            'body' => ['required', 'string'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'validations' => $validator->errors(),
+                'data' => ''
+            ], 422);
+        }
+
         $task = Task::where('user_id', Auth::user()->id)->whereDate('created_at', Carbon::today())->first();
         if (!$task) {
             $task = new Task;
             $task->user_id = Auth::user()->id;
-            $task->title = $request->title;
+            $task->title = Auth::user()->profile->name;
             $task->body = $request->body;
             $task->save();
         } else {
