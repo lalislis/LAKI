@@ -21,6 +21,10 @@ class TaskController extends Controller
             fn ($query) => $query->where('id', Auth::user()->profile->company_id)
         )->with('tasks', fn ($query) => $query->whereDate('created_at', Carbon::today()))->get();
 
+        $index = $tasks->search(fn ($task) => $task->id == Auth::user()->id);
+        $self = $tasks->pull($index);
+        $tasks = $tasks->prepend($self);
+
         return response()->json([
             'success' => true,
             'messages' => 'Data retrieved succesfully',
