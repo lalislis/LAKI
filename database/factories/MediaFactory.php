@@ -17,7 +17,7 @@ class MediaFactory extends Factory
     public function definition()
     {
         return [
-            //
+            'storage_path' => $this->faker->imageUrl(360, 360, 'animals'),
         ];
     }
 }

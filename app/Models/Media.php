@@ -8,6 +8,20 @@ use Illuminate\Database\Eloquent\{Model, SoftDeletes};
 class Media extends Model
 {
     use HasFactory, SoftDeletes;
+    protected $guarded = [];
 
-    protected $guarded = ['id'];
+    public function company()
+    {
+        return $this->hasOne(Companies::class);
+    }
+
+    public function profile()
+    {
+        return $this->hasOne(Profiles::class);
+    }
+
+    public function presences()
+    {
+        return $this->hasOne(Presences::class);
+    }
 }

@@ -10,18 +10,21 @@ class Profiles extends Model
     use HasFactory, SoftDeletes;
 
     protected $table = 'profiles';
-    protected $guarded = ['id'];
-    protected $with = ['user', 'company','media'];
+    protected $guarded = [];
+    protected $with = ['user', 'company', 'media'];
 
-    public function user(){
+    public function user()
+    {
         return $this->belongsTo(User::class);
     }
 
-    public function company(){
+    public function company()
+    {
         return $this->belongsTo(Companies::class);
     }
 
-    public function media(){
+    public function media()
+    {
         return $this->belongsTo(Media::class);
     }
 }

@@ -2,6 +2,10 @@
 
 namespace Database\Seeders;
 
+use App\Models\Companies;
+use App\Models\Media;
+use App\Models\Profiles;
+use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
@@ -15,26 +19,29 @@ class UserSeeder extends Seeder
      */
     public function run()
     {
-        DB::table('users')->insert([
-            'email' => 'johndoe@gmail.com',
-            'password' => bcrypt('rahasia123'),
-            'created_at' => now(),
-            'updated_at' => now()
-        ]);
+        Companies::all()->pluck('id')->each(function ($id) {
+            $users = User::factory(3)->create();
+            $users->each(function ($user) use ($id) {
+                Profiles::factory()->create([
+                    'company_id' => $id,
+                    'user_id' => $user->id,
+                    'media_id' => random_int(1, Media::all()->count())
+                ]);
+            });
 
-        DB::table('users')->insert([
-            'email' => 'jack@gmail.com',
-            'password' => bcrypt('rahasia123'),
-            'created_at' => now(),
-            'updated_at' => now()
-        ]);
+            $superUser = User::factory()->create(['role' => 2]);
+            Profiles::factory()->create([
+                'company_id' => 1,
+                'user_id' => $superUser->id,
+                'media_id' => random_int(1, Media::all()->count()),
+            ]);
+        });
 
-        DB::table('users')->insert([
-            'email' => 'admin@email.com',
-            'password' => bcrypt('admin'),
-            'role' => '3',
-            'created_at' => now(),
-            'updated_at' => now()
+        $admin = User::factory()->create(['role' => 3]);
+        Profiles::factory()->create([
+            'company_id' => 1,
+            'user_id' => $admin->id,
+            'media_id' => 1,
         ]);
     }
 }

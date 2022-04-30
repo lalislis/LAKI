@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\{Task, User, Profiles};
 use Illuminate\Http\Request;
-use Auth;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 class TaskController extends Controller
 {
@@ -16,10 +16,11 @@ class TaskController extends Controller
      */
     public function index()
     {
-        $task = Task::whereHas('user.profile', function($query) {
+        $task = Task::whereHas('user.profile', function ($query) {
             $query->where('company_id', Auth::user()->profile->company_id);
         })->whereDate('created_at', Carbon::today())->get();
-        if(!task){
+
+        if (!$task) {
             return response()->json([
                 'success' => false,
                 'message' => 'Data task tidak ditemukan'
@@ -34,16 +35,15 @@ class TaskController extends Controller
 
     public function update(Request $request, Task $task)
     {
-        $data = $request->except('_token','_method');
+        $data = $request->except('_token', '_method');
         $task = Task::where('user_id', Auth::user()->id)->whereDate('created_at', Carbon::today())->first();
-        if(!$task){
+        if (!$task) {
             $task = new Task;
             $task->user_id = Auth::user()->id;
             $task->title = $request->title;
             $task->body = $request->body;
             $task->save();
-        }
-        else{
+        } else {
             $task->update($data);
         }
 

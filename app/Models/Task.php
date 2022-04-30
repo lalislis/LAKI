@@ -9,9 +9,10 @@ class Task extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $guarded = ['id'];
+    protected $guarded = [];
 
-    public function user(){
+    public function user()
+    {
         return $this->belongsTo(User::class);
     }
 }

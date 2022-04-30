@@ -17,7 +17,8 @@ class ProfilesFactory extends Factory
     public function definition()
     {
         return [
-            //
+            'name' => $this->faker->name,
+            'position' => $this->faker->jobTitle,
         ];
     }
 }

@@ -15,19 +15,5 @@ class TaskSeeder extends Seeder
      */
     public function run()
     {
-        DB::table('tasks')->insert([
-            'title' => 'Task 1',
-            'user_id' => 3,
-            'body' => 'Task 1 description',
-            'created_at' => now(),
-            'updated_at' => now()
-        ]);
-        DB::table('tasks')->insert([
-            'title' => 'Task 2',
-            'user_id' => 3,
-            'body' => 'Task 2 description',
-            'created_at' => now(),
-            'updated_at' => now()
-        ]);
     }
 }

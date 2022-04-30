@@ -8,15 +8,16 @@ use Illuminate\Database\Eloquent\{Model, SoftDeletes};
 class Presences extends Model
 {
     use HasFactory, SoftDeletes;
+    protected $guarded = [];
+    protected $with = ['media', 'user'];
 
-    protected $guarded = ['id'];
-    protected $with = ['media','user'];
-
-    public function media(){
+    public function media()
+    {
         return $this->belongsTo(Media::class);
     }
 
-    public function user(){
+    public function user()
+    {
         return $this->belongsTo(User::class);
     }
 }
