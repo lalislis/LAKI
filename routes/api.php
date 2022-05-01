@@ -25,26 +25,28 @@ Route::group(['prefix' => 'auth'], function(){
 
 Route::group(['middleware' => ['auth:sanctum']], function(){
     Route::get('/profiles', 'ProfilesController@index');
-    Route::get('/profiles/{user:id}', 'ProfilesController@show');
-    Route::post('/profiles/update/{user:id}', 'ProfilesController@update');
+    Route::get('/profiles', 'ProfilesController@show');
+    Route::put('/profiles/edit-password', 'ProfilesController@editPassword');
+    Route::post('/profiles/edit-profile', 'ProfilesController@update');
     Route::post('/profiles/updatefoto/{user:id}', 'ProfilesController@updateFoto');
     Route::post('/presence/{user:id}', 'PresencesController@clockIn');
     Route::post('/logout', 'AuthController@logout');
     Route::get('/tasks', 'TaskController@index');
     Route::put('/tasks', 'TaskController@update');
-    Route::get('/adminsuperuser', 'AdminController@showSuperUser');
-    Route::post('/adminsuperuser/register', 'AdminController@registerSuperUser');
-    Route::get('/admincompany', 'AdminController@showCompanies');
-    Route::post('/admincompany/register', 'AdminController@registerCompany');
+    Route::post('/admin/superusers', 'AdminController@registerSuperUser');
+    Route::get('/admin/superusers', 'AdminController@getSuperUser');
+    Route::delete('/admin/superusers/{user:id}', 'AdminController@deleteSuperUser');
+    Route::get('/admin/list-company', 'AdminController@listCompanies');
+    Route::post('/admin/companies', 'AdminController@registerCompany');
+    Route::get('/admin/companies', 'AdminController@getCompanies');
     Route::get('/karyawan', 'KaryawanController@index');
     Route::get('/superuser', 'SuperUserController@index');
     Route::get('/superuser/user/{user:id}', 'SuperUserController@showKaryawan');
     Route::get('/superuser/task/{user:id}', 'SuperUserController@showTask');
     Route::delete('/superuser/user/{user:id}', 'SuperUserController@deleteKaryawan');
     Route::post('/superuser', 'SuperUserController@createKaryawan');
+    Route::get('/dashboard/user/{user:id}', 'DashboardController@index');
 });
-
-Route::get('/dashboard/{user:id}', 'ProfilesController@dashboard');
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();

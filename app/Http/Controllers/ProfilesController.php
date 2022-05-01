@@ -9,6 +9,9 @@ use App\Models\Media;
 use App\Models\User;
 use App\Models\Task;
 use App\Models\Presences;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Hash;
 
 class ProfilesController extends Controller
 {
@@ -17,28 +20,66 @@ class ProfilesController extends Controller
         return $profiles;
     }
 
-    public function show(User $user){
-        $profile = Profiles::whereBelongsTo($user)->first();
-        return $profile;
+    public function show(){
+        $profile = Profiles::whereBelongsTo(Auth::user())->first();        
+        return response()->json([
+            'success' => true,
+            'messages' => 'Data retrieved succesfully',
+            'data' => $profile,
+        ]);
     }
 
-    public function update(Request $request, User $user){
-        $request->validate([
-            'name' => 'required',
-            'email' => 'required'
+    public function editPassword(Request $request){
+        $req = $request->all();
+
+        $user = Auth::user();
+        $validator = Validator::make($req, [
+            'password' => ['required', function ($attribute, $value, $fail) use ($user) {
+                if (!\Hash::check($value, $user->password)) {
+                    return $fail(__('The current password is incorrect.'));
+                }
+                }],
+            'new_password' => ['required', 'string'],
+            'confirm_new_password' => ['required', 'string', 'same:new_password']
         ]);
 
-        $user->update([
-            'email' => $request->email
-        ]);
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'validations' => $validator->errors(),
+                'data' => ''
+            ], 422);
+        }
 
-        $updateProfile = Profiles::whereBelongsTo($user)->update([
-            'name' => $request->name
-        ]);
+        $user->password = Hash::make($request->new_password);
+        $user->save();
         
-        $profile = Profiles::whereBelongsTo($user)->first();
+        return response()->json([
+            'success' => true,
+            'messages' => 'Your password have been changed succesfully',
+        ]);
+    }
 
-        return $profile;
+    public function update(Request $request){
+        $req = $request->all();
+
+        $validator = Validator::make($req, [
+            'name' => ['required', 'string'],
+            'email' => ['required', 'string']
+        ]);
+
+        $user = Auth::user();
+        $user->email = $request->email;
+        $user->save();
+
+        $profile = Profiles::where('user_id', Auth::user()->id)->first();
+        $profile->name = $request->name;
+        $profile->save();
+        
+        return response()->json([
+            'success' => true,
+            'messages' => 'Your profile have been changed succesfully',
+        ]);
     }
 
     public function updateFoto(Request $request, User $user){
@@ -60,17 +101,5 @@ class ProfilesController extends Controller
         $profile = Profiles::where('media_id', $media->id)->first();
 
         return $profile;
-    }
-
-    public function dashboard(User $user){
-        $profile = Profiles::whereBelongsTo($user)->first();
-        $task = Task::whereBelongsTo($user)->first();
-        $presence = Presences::whereBelongsTo($user)->first();
-
-        $dt = new DateTime($presence->clock_in);
-        $date = $dt->toDateString();
-        $hour = $dt->toTimeString();
-
-        return [$profile, $task, $presence];
     }
 }
