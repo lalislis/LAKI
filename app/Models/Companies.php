@@ -9,6 +9,7 @@ class Companies extends Model
 {
     use HasFactory, SoftDeletes;
     protected $guarded = [];
+    protected $with = ['media'];
 
     public function media()
     {

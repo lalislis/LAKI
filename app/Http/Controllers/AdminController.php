@@ -6,69 +6,120 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Profiles;
 use App\Models\Companies;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Hash;
 
 class AdminController extends Controller
 {
-    public function showSuperUser(){
-        $superUser = User::where('role', '2')->with('profile')->get();
-
-        return $superUser;
-    }
-
-    public function showCompanies(){
-        $companies = Companies::all();
-
-        return $companies;
+    public function getSuperUser(){
+        $superUser = User::where('role', '2')->with('profile','tasks')->get();
+        
+        return response()->json([
+            'success' => true,
+            'messages' => 'Data retrieved succesfully',
+            'data' => $superUser,
+        ]);
     }
 
     public function registerSuperUser(Request $request){
-        $request->validate([
-            'name' => 'required',
-            'email' => 'required',
-            'title' => 'required',
-            'company' => 'required',
-            'password' => 'required',
-            'confirm_password' => 'required_with:password|same:password'
+        $req = $request->all();
+
+        $validator = Validator::make($req, [
+            'name' => ['required', 'string'],
+            'email' => ['required', 'string'],
+            'position' => ['required', 'string'],
+            'password' => ['required', 'string'],
+            'confirm_password' => ['required', 'string', 'same:password'],
+            'company_id' => ['required', 'int'],
+            'role' => ['required', 'int']
         ]);
 
         $user = User::create([
             'email' => $request->email,
-            'password' => $request->password,
-            'role' => "2"
+            'password' => Hash::make($request->password),
+            'role' => $request->role
         ]);
 
         $profile = Profiles::create([
             'name' => $request->name,
-            'position' => $request->title,
-            'company_id' => $request->company,
+            'position' => $request->position,
+            'company_id' => $request->company_id,
             'user_id' => $user->id,
             'media_id' => "1"
         ]);
 
-        $data = Profiles::where('id', $profile->id)->first();
+        return response()->json([
+            'success' => true,
+            'messages' => 'The account has been created'
+        ]);
+    }
 
-        return $data;
+    public function deleteSuperUser(User $user){
+        $user->delete();
+        return response()->json([
+            'success' => true,
+            'messages' => 'Success Delete Data',
+        ]);
     }
 
     public function registerCompany(Request $request){
-        $request->validate([
-            'name' => 'required',
-            'email' => 'required',
-            'address' => 'required',
-            'phone' => 'required',
-            'website' => 'required'
+        $data = $request->except('_token', '_method');
+        $req = $request->all();
+
+        $validator = Validator::make($req, [
+            'company_id' => ['required', 'int'],
+            'name' => ['required', 'string'],
+            'email' => ['required', 'string'],
+            'address' => ['required', 'string'],
+            'website' => ['required', 'string'],
+            'phone' => ['required', 'string', 'same:password'],
         ]);
 
-        $company = Companies::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'address' => $request->address,
-            'phone' => $request->phone,
-            'website' => $request->website
+        if($request->compani_id == NULL){
+            $company = Companies::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'address' => $request->address,
+                'phone' => $request->phone,
+                'website' => $request->website,
+                'media_id' => '1'
+            ]);
+        }
+        else{
+            $company = Companies::where('id', $request->company_id)->first();
+            $company->update($data);
+        }
+
+        return response()->json([
+            'success' => true,
+            'messages' => 'The company has been created and updated',
         ]);
+    }
 
-        $data = Companies::where('id', $company->id)->first();
+    public function listCompanies(){
+        $companies = Companies::get();
 
-        return $data;
+        $namecompanies = $companies->map(function ($company) {
+            return collect($company->toArray())
+                ->only(['name'])
+                ->all();
+        });
+
+        return response()->json([
+            'success' => true,
+            'messages' => 'Data retrieved succesfully',
+            'data' => $namecompanies,
+        ]);
+    }
+
+    public function getCompanies(){
+        $companies = Companies::get();
+
+        return response()->json([
+            'success' => true,
+            'messages' => 'Data retrieved succesfully',
+            'data' => $companies,
+        ]);
     }
 }
