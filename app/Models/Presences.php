@@ -9,7 +9,6 @@ class Presences extends Model
 {
     use HasFactory, SoftDeletes;
     protected $guarded = [];
-    protected $with = ['media', 'user'];
 
     public function media()
     {
