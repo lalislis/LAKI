@@ -82,11 +82,14 @@ class ProfilesController extends Controller
         ]);
     }
 
-    public function updateFoto(Request $request, User $user){
-        $request->validate([
-            'foto' => 'required'
+    public function updateFoto(Request $request){
+        $req = $request->all();
+
+        $validator = Validator::make($req, [
+            'foto' => ['required']
         ]);
 
+        $user = Auth::user();
         $profile = Profiles::whereBelongsTo($user)->first();
 
         $foto = $request->file('foto');
@@ -94,12 +97,12 @@ class ProfilesController extends Controller
         $foto->move($dir,$foto->getClientOriginalName());
 
         $media = Media::where('id', $profile->media_id)->first();
-        $media->update([
-            'storage_path' => $foto->getClientOriginalName()
+        $media->storage_path = $foto->getClientOriginalName();
+        $media->save();
+
+        return response()->json([
+            'success' => true,
+            'messages' => 'Your photo profile have been changed succesfully',
         ]);
-
-        $profile = Profiles::where('media_id', $media->id)->first();
-
-        return $profile;
     }
 }
