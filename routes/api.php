@@ -28,7 +28,7 @@ Route::group(['middleware' => ['auth:sanctum']], function(){
     Route::get('/profiles', 'ProfilesController@show');
     Route::put('/profiles/edit-password', 'ProfilesController@editPassword');
     Route::post('/profiles/edit-profile', 'ProfilesController@update');
-    Route::post('/profiles/updatefoto/{user:id}', 'ProfilesController@updateFoto');
+    Route::post('/profiles/edit-photo', 'ProfilesController@updateFoto');
     Route::post('/presence/{user:id}', 'PresencesController@clockIn');
     Route::post('/logout', 'AuthController@logout');
     Route::get('/tasks', 'TaskController@index');
@@ -45,7 +45,8 @@ Route::group(['middleware' => ['auth:sanctum']], function(){
     Route::get('/superuser/task/{user:id}', 'SuperUserController@showTask');
     Route::delete('/superuser/user/{user:id}', 'SuperUserController@deleteKaryawan');
     Route::post('/superuser', 'SuperUserController@createKaryawan');
-    Route::get('/dashboard/user/{user:id}', 'DashboardController@index');
+    Route::get('/dashboard/user', 'DashboardController@index');
+    Route::get('/dashboard/clock-today', 'DashboardController@clockToday');
 });
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
