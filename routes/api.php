@@ -20,7 +20,6 @@ use App\Http\Controllers\TaskController;
 Route::group(['prefix' => 'auth'], function(){
     Route::post('/register', 'AuthController@register');
     Route::post('/login', 'AuthController@login')->name('login');
-    Route::post('/logout', 'AuthController@logout')->name('logout');
 });
 
 Route::group(['middleware' => ['auth:sanctum']], function(){
@@ -39,12 +38,14 @@ Route::group(['middleware' => ['auth:sanctum']], function(){
     Route::get('/admin/list-company', 'AdminController@listCompanies');
     Route::post('/admin/companies', 'AdminController@registerCompany');
     Route::get('/admin/companies', 'AdminController@getCompanies');
-    Route::get('/karyawan', 'KaryawanController@index');
-    Route::get('/superuser', 'SuperUserController@index');
-    Route::get('/superuser/user/{user:id}', 'SuperUserController@showKaryawan');
-    Route::get('/superuser/task/{user:id}', 'SuperUserController@showTask');
-    Route::delete('/superuser/user/{user:id}', 'SuperUserController@deleteKaryawan');
-    Route::post('/superuser', 'SuperUserController@createKaryawan');
+    Route::get('/employees', 'KaryawanController@index');
+    Route::group(['prefix' => 'superuser'], function(){
+        Route::get('/user-profiles', 'SuperUserController@index');
+        Route::get('/info-company', 'SuperUserController@showCompany');
+        Route::get('/users', 'SuperUserController@showKaryawan');
+        Route::delete('/users/{user:id}', 'SuperUserController@deleteKaryawan');
+        Route::post('/users', 'SuperUserController@createKaryawan');
+    });
     Route::get('/dashboard/user', 'DashboardController@index');
     Route::get('/dashboard/clock-today', 'DashboardController@clockToday');
 });

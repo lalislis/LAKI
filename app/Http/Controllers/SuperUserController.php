@@ -2,23 +2,41 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
-use App\Models\Task;
-use App\Models\Profiles;
+use App\Models\{User, Profiles, Media, Task, Companies};
 use Auth;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 
 class SuperUserController extends Controller
 {
     public function index(Request $request){
-        $karyawan = User::where('role', '1')->with('profile')->get();
+        $karyawan = Profiles::whereHas('user', function($query){
+            $query->where('role', '1');
+        })
+        ->where('company_id', Auth::user()->profile->company_id)
+        ->with('user.tasks')
+        ->with('media:id,storage_path')
+        ->get()
+        ->map
+        ->only('id', 'media_id', 'name', 'position', 'user','media')
+        ;
+       
         if($request->has('search')){
             $search = $request->search;
-            $karyawan = User::where('role', '1')->where('email', 'like', '%'.$search.'%')->with('profile')->get();
+            $karyawan = $karyawan = Profiles::whereHas('user', function($query){
+                $query->where('role', '1');
+            })
+            ->where('company_id', Auth::user()->profile->company_id)
+            ->where('name', 'like', '%'.$search.'%')
+            ->with(['user.task', 'media:id,storage_path'])
+            ->get()
+            ->map
+            ->only('id', 'media_id', 'name', 'position', 'user','media')
+            ;
             if($karyawan->isEmpty()){
                 return response()->json([
-                    'status' => false,
-                    'messages' => 'Data Karyawan Tidak Ditemukan',
+                    'success' => false,
+                    'messages' => 'Data Cannot be Retrieved',
                 ]);
             }
         }
@@ -28,29 +46,55 @@ class SuperUserController extends Controller
         }
 
         return response()->json([
-            'status' => true,
-            'messages' => 'Data Karyawan Berhasil Ditampilkan',
+            'success' => true,
+            'messages' => 'Data Retrieved Succesfully',
             'data' => $karyawan   
         ]);
     }
 
-    public function showKaryawan(User $user){
-        $karyawan = User::where('id', $user->id)->with('profile')->first();
-
+    public function showCompany(Request $request){
+        $company = Companies::where('id', Auth::user()->profile->company_id)->first();
+        $company['total_employee'] = Profiles::where('company_id', Auth::user()->profile->company_id)->count();
+        $company['total_online'] = Profiles::where('company_id', Auth::user()->profile->company_id)->whereHas('user', function($query){
+            $query->where('status', '1');
+        })->count();
         return response()->json([
-            'status' => true,
-            'messages' => 'Data Karyawan Berhasil Ditampilkan',
-            'data' => $karyawan   
+            'success' => true,
+            'messages' => 'Data Retrieved Succesfully',
+            'data' => [
+                'id' => $company->id,
+                'name' => $company->name,
+                'address' => $company->address,
+                'phone' => $company->phone,
+                'email' => $company->email,
+                'website' => $company->website,
+                'total_employee' => $company['total_employee'],
+                'total_online' => $company['total_online'],
+            ]
         ]);
     }
 
-    public function showTask(User $user){
-        $task = Task::where('user_id', $user->id)->get();
-
+    public function showKaryawan(){
+        $karyawan = User::where('id', Auth::user()->id)->with('profile')->first();
+        if($karyawan->status == true){
+            $status = 'Online';
+        }
+        else{
+            $status = 'Offline';
+        }
         return response()->json([
-            'status' => true,
-            'messages' => 'Data Task Berhasil Ditampilkan',
-            'data' => $task  
+            'success' => true,
+            'messages' => 'Data Retrieved Succesfully',
+            'data' => [
+                'id' => $karyawan->id, 
+                'email' => $karyawan->email, 
+                'profile' => [
+                    'id' => $karyawan->profile->id,
+                    'user_id' => $karyawan->profile->user_id,
+                    'name' => $karyawan->profile->name,
+                    'position' => $karyawan->profile->position,
+                    'status' => $status
+                ]]
         ]);
     }
 
@@ -59,8 +103,8 @@ class SuperUserController extends Controller
         $user->delete();
 
         return response()->json([
-            'status' => true,
-            'message' => 'Karyawan berhasil dihapus'
+            'success' => true,
+            'message' => 'The account has been deleted'
         ]);
     }
 
@@ -90,9 +134,8 @@ class SuperUserController extends Controller
 
         $data = Profiles::where('id', $profile->id)->first();
         return response()->json([
-            'status' => true,
-            'message' => 'Karyawan berhasil ditambahkan',
-            'data' => $data
+            'success' => true,
+            'message' => 'The account has been created',
         ]);
     }
 }

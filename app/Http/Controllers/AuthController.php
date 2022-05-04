@@ -36,6 +36,7 @@ class AuthController extends Controller
         }
         $user = auth()->user();
         $user->status = true;
+        $user->update();
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
@@ -94,10 +95,36 @@ class AuthController extends Controller
     }
 
     public function logout(){
-        auth()->user()->tokens()->delete();
+        $user = auth()->user();
+        $user->tokens()->delete();
+        $user->status = false;
+        $user->update();
         return response()->json([
             'success' => true,
             'messages' => 'Success Logout',
         ]);
+    }
+
+    public function reset(){
+        $user = User::where('email', request('email'))->first();
+        if(!$user){
+            return response()->json([
+                'success' => false,
+                'message' => 'Email tidak ditemukan',
+                'data' => ''
+            ], 401);
+        }
+        $user->update([
+            'password' => bcrypt(request('password'))
+        ]);
+        return response()->json([
+            'success' => true,
+            'messages' => 'Success Reset Password',
+            'data' => ''
+        ]);
+    }
+
+    public function forgot(){
+
     }
 }
