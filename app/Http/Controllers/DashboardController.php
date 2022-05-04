@@ -16,7 +16,7 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
         $profile = Profiles::whereBelongsTo($user)->first();
-        $task = Task::whereBelongsTo($user)->first();
+        $task = Task::whereBelongsTo($user)->latest()->get();
 
         return response()->json([
             'success' => true,
