@@ -12,7 +12,8 @@ use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
-    public function index(){
+    public function index()
+    {
         $user = Auth::user();
         $profile = Profiles::whereBelongsTo($user)->first();
         $task = Task::whereBelongsTo($user)->first();
@@ -20,19 +21,19 @@ class DashboardController extends Controller
         return response()->json([
             'success' => true,
             'messages' => 'Data retrieved succesfully',
-            'data' => [$profile, $task],
+            'data' => collect($profile)->put('tasks', $task ?? []),
         ]);
     }
 
-    public function clockToday(){
+    public function clockToday()
+    {
         $user = Auth::user();
-        $profile = Profiles::whereBelongsTo($user)->first();
         $presence = Presences::whereBelongsTo($user)->whereDate('created_at', Carbon::today())->firstOrCreate([
             'user_id' => $user->id,
-            'media_id' => $profile->media_id
+            'media_id' => null,
+            'clock_in' => null,
+            'clock_out' => null
         ]);
-        $presence->clock_in = $presence->updated_at;
-        $presence->save();
 
         return response()->json([
             'success' => true,

@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('presences', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id');
-            $table->foreignId('media_id');
+            $table->foreignId('media_id')->nullable();
             $table->timestamp('clock_in')->nullable();
             $table->timestamp('clock_out')->nullable();
             $table->timestamps();
