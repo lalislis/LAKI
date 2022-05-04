@@ -21,7 +21,8 @@ class DashboardController extends Controller
         return response()->json([
             'success' => true,
             'messages' => 'Data retrieved succesfully',
-            'data' => collect($profile)->put('tasks', $task ?? []),
+            'data' => collect($profile)->put('tasks', $task ?? [])
+                ->put('email', $user->email),
         ]);
     }
 
