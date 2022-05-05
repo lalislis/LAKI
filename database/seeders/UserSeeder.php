@@ -19,11 +19,11 @@ class UserSeeder extends Seeder
      */
     public function run()
     {
-        Companies::all()->pluck('id')->each(function ($id) {
+        Companies::all()->pluck('id')->each(function ($companyId) {
             $users = User::factory(3)->create();
-            $users->each(function ($user) use ($id) {
+            $users->each(function ($user) use ($companyId) {
                 Profiles::factory()->create([
-                    'company_id' => $id,
+                    'company_id' => $companyId,
                     'user_id' => $user->id,
                     'media_id' => random_int(1, Media::all()->count())
                 ]);
@@ -31,7 +31,7 @@ class UserSeeder extends Seeder
 
             $superUser = User::factory()->create(['role' => 2]);
             Profiles::factory()->create([
-                'company_id' => 1,
+                'company_id' => $companyId,
                 'user_id' => $superUser->id,
                 'media_id' => random_int(1, Media::all()->count()),
             ]);

@@ -14,7 +14,10 @@ class AdminController extends Controller
 {
     public function getSuperUser()
     {
-        $superUser = User::where('role', '2')->with('profile', 'tasks')->get();
+        $superUser = User::where('role', 2)
+            ->latest()
+            ->with('profile')
+            ->get();
 
         return response()->json([
             'success' => true,
@@ -27,7 +30,7 @@ class AdminController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required|string',
-            'email' => 'required|email|unique',
+            'email' => 'required|email|unique:users',
             'position' => 'required|string',
             'password' => 'required|string',
             'confirm_password' => 'required|string|same:password',
@@ -65,10 +68,20 @@ class AdminController extends Controller
 
     public function deleteSuperUser(User $user)
     {
+        if ($user->role !== 2) {
+            return response()->json([
+                'success' => false,
+                'messages' => 'Role user yang diingin dihapus tidak sesuai',
+                'data' => ''
+            ], 401);
+        }
+
+        $user->profile()->delete();
         $user->delete();
+
         return response()->json([
             'success' => true,
-            'messages' => 'Success Delete Data',
+            'messages' => 'The account has been deleted',
         ]);
     }
 
@@ -78,7 +91,7 @@ class AdminController extends Controller
         $validator = Validator::make($request->all(), [
             'company_id' => ['required', 'int'],
             'name' => ['required', 'string'],
-            'email' => ['required', 'string', 'unique'],
+            'email' => ['required', 'string', 'unique:companies'],
             'address' => ['required', 'string'],
             'website' => ['required', 'string'],
             'phone' => ['required', 'string'],

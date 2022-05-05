@@ -17,12 +17,13 @@ use App\Http\Controllers\TaskController;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
-Route::group(['prefix' => 'auth'], function(){
+
+Route::group(['prefix' => 'auth'], function () {
     Route::post('/register', 'AuthController@register');
     Route::post('/login', 'AuthController@login')->name('login');
 });
 
-Route::group(['middleware' => ['auth:sanctum']], function(){
+Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('/profiles', 'ProfilesController@index');
     Route::get('/profiles', 'ProfilesController@show');
     Route::put('/profiles/edit-password', 'ProfilesController@editPassword');
@@ -39,7 +40,7 @@ Route::group(['middleware' => ['auth:sanctum']], function(){
     Route::post('/admin/companies', 'AdminController@registerCompany');
     Route::get('/admin/companies', 'AdminController@getCompanies');
     Route::get('/employees', 'KaryawanController@index');
-    Route::group(['prefix' => 'superuser'], function(){
+    Route::group(['prefix' => 'superuser'], function () {
         Route::get('/user-profiles', 'SuperUserController@index');
         Route::get('/info-company', 'SuperUserController@showCompany');
         Route::get('/users', 'SuperUserController@showKaryawan');
