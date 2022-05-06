@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Profiles;
 use App\Models\Companies;
+use App\Models\Media;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
@@ -89,12 +90,13 @@ class AdminController extends Controller
     {
         $data = $request->except('_token', '_method');
         $validator = Validator::make($request->all(), [
-            'company_id' => ['required', 'int'],
-            'name' => ['required', 'string'],
-            'email' => ['required', 'string', 'unique:companies'],
-            'address' => ['required', 'string'],
-            'website' => ['required', 'string'],
-            'phone' => ['required', 'string'],
+            'company_id' => 'integer',
+            'name' => 'required|string',
+            'email' => 'required|string|unique:companies',
+            'address' => 'required|string',
+            'website' => 'required|string',
+            'phone' => 'required|string',
+            'logo' => 'string',
         ]);
 
         if ($validator->fails()) {
@@ -105,18 +107,28 @@ class AdminController extends Controller
             ], 422);
         }
 
-        if ($request->compani_id == NULL) {
+        if (!$request->has('company_id') || $request->company_id == NULL) {
+            $media = Media::create([
+                'storage_path' => $request->logo,
+            ]);
+
             $company = Companies::create([
                 'name' => $request->name,
                 'email' => $request->email,
                 'address' => $request->address,
                 'phone' => $request->phone,
                 'website' => $request->website,
-                'media_id' => '1'
+                'media_id' => $media->id,
             ]);
         } else {
             $company = Companies::where('id', $request->company_id)->first();
             $company->update($data);
+
+            if ($request->has('logo')) {
+                $company->media()->update([
+                    'storage_path' => $request->logo,
+                ]);
+            }
         }
 
         return response()->json([
@@ -144,7 +156,7 @@ class AdminController extends Controller
 
     public function getCompanies()
     {
-        $companies = Companies::get();
+        $companies = Companies::latest()->get();
 
         return response()->json([
             'success' => true,
