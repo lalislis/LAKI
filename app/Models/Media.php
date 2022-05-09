@@ -8,6 +8,10 @@ use Illuminate\Database\Eloquent\{Model, SoftDeletes};
 class Media extends Model
 {
     use HasFactory, SoftDeletes;
+
+    const DEFAULT_USER = "images/default_user.jpg";
+    const DEFAULT_COMPANY = "images/default_company.png";
+
     protected $guarded = [];
 
     public function company()

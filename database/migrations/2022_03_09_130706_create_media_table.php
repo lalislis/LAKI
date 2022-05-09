@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::create('media', function (Blueprint $table) {
             $table->id();
-            $table->string('storage_path');
+            $table->text('storage_path');
             $table->timestamps();
             $table->softDeletes();
         });

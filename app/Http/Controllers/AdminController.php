@@ -7,7 +7,6 @@ use App\Models\User;
 use App\Models\Profiles;
 use App\Models\Companies;
 use App\Models\Media;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 
@@ -47,6 +46,10 @@ class AdminController extends Controller
             ], 422);
         }
 
+        $media = Media::create([
+            'storage_path' => Media::DEFAULT_USER,
+        ]);
+
         $user = User::create([
             'email' => $request->email,
             'password' => Hash::make($request->password),
@@ -58,7 +61,7 @@ class AdminController extends Controller
             'position' => $request->position,
             'company_id' => $request->company_id,
             'user_id' => $user->id,
-            'media_id' => "1"
+            'media_id' => $media->id,
         ]);
 
         return response()->json([
@@ -89,14 +92,19 @@ class AdminController extends Controller
     public function registerCompany(Request $request)
     {
         $data = $request->except('_token', '_method');
+
+        $emailRules = !$request->has('company_id') ?
+            '' :
+            ',email,' . $request->company_id;
+
         $validator = Validator::make($request->all(), [
             'company_id' => 'integer',
             'name' => 'required|string',
-            'email' => 'required|string|unique:companies',
+            'email' => "required|email|unique:companies$emailRules",
             'address' => 'required|string',
             'website' => 'required|string',
             'phone' => 'required|string',
-            'logo' => 'string',
+            'logo' => 'file|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
 
         if ($validator->fails()) {
@@ -107,9 +115,10 @@ class AdminController extends Controller
             ], 422);
         }
 
-        if (!$request->has('company_id') || $request->company_id == NULL) {
+        if (!$request->has('company_id')) {
             $media = Media::create([
-                'storage_path' => $request->logo,
+                'storage_path' => $request->has('logo')
+                    ? $request->file('logo')->store('images', 'public') : Media::DEFAULT_COMPANY,
             ]);
 
             $company = Companies::create([
@@ -122,11 +131,18 @@ class AdminController extends Controller
             ]);
         } else {
             $company = Companies::where('id', $request->company_id)->first();
-            $company->update($data);
+            $company->update([
+                'name' => $request->name,
+                'email' => $request->email,
+                'address' => $request->address,
+                'phone' => $request->phone,
+                'website' => $request->website,
+            ]);
 
             if ($request->has('logo')) {
+                $path = $request->file('logo')->store('images', 'public');
                 $company->media()->update([
-                    'storage_path' => $request->logo,
+                    'storage_path' => $path,
                 ]);
             }
         }

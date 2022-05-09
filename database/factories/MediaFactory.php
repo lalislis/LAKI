@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Media;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -17,7 +18,7 @@ class MediaFactory extends Factory
     public function definition()
     {
         return [
-            'storage_path' => $this->faker->imageUrl(360, 360, 'animals'),
+            'storage_path' => $this->faker->randomElement([Media::DEFAULT_COMPANY, Media::DEFAULT_USER])
         ];
     }
 }
