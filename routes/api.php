@@ -18,19 +18,19 @@ use App\Http\Controllers\TaskController;
 |
 */
 
-Route::group(['prefix' => 'auth'], function(){
+Route::group(['prefix' => 'auth'], function () {
     Route::post('/register', 'AuthController@register');
     Route::post('/login', 'AuthController@login');
     Route::post('/forgot-password', 'AuthController@forgotPassword');
     Route::post('/reset-password', 'AuthController@reset');
 });
 
-Route::group(['middleware' => ['auth:sanctum']], function(){
+Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('/profiles', 'ProfilesController@index');
     Route::get('/profiles', 'ProfilesController@show');
-    Route::put('/profiles/edit-password', 'ProfilesController@editPassword');
+    Route::post('/profiles/edit-password', 'ProfilesController@editPassword');
     Route::post('/profiles/edit-profile', 'ProfilesController@update');
-    Route::post('/profiles/edit-photo', 'ProfilesController@updateFoto');
+    // Route::post('/profiles/edit-photo', 'ProfilesController@updateFoto');
     Route::post('/presence/{user:id}', 'PresencesController@clockIn');
     Route::post('/auth/logout', 'AuthController@logout');
     Route::get('/tasks', 'TaskController@index');
