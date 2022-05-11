@@ -31,7 +31,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/profiles/edit-password', 'ProfilesController@editPassword');
     Route::post('/profiles/edit-profile', 'ProfilesController@update');
     // Route::post('/profiles/edit-photo', 'ProfilesController@updateFoto');
-    Route::post('/presence/{user:id}', 'PresencesController@clockIn');
+    Route::post('/presences/clock-in', 'PresencesController@clockIn');
+    Route::post('/presences/clock-out', 'PresencesController@clockOut');
     Route::post('/auth/logout', 'AuthController@logout');
     Route::get('/tasks', 'TaskController@index');
     Route::put('/tasks', 'TaskController@update');

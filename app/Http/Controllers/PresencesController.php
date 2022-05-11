@@ -1,38 +1,56 @@
 <?php
 
 namespace App\Http\Controllers;
-use App\Models\User;
+
 use App\Models\Media;
 use App\Models\Presences;
-
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 
 class PresencesController extends Controller
 {
-    public function clockIn(Request $request, User $user){
-        $request->validate([
-            'foto' => 'required'
+    public function clockIn(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'photo' => 'required|file|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
 
-        $foto = $request->file('foto');
-        
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'validations' => $validator->errors(),
+                'data' => ''
+            ], 422);
+        }
+
         $media = Media::create([
-            'user_id' => $user->id,
-            'text' => ' ',
-            'storage_path' => $foto->getClientOriginalName()
+            'storage_path' => $request->file('photo')->store('images', 'public')
         ]);
 
-        $dir = 'image/presensi';
-        $foto->move($dir,$foto->getClientOriginalName());
-
-        $presence = Presences::create([
-            'user_id' => $user->id,
+        $presence = Presences::whereBelongsTo(Auth::user())->whereDate('created_at', Carbon::today());
+        $presence->update([
+            'clock_in' => Carbon::now(),
             'media_id' => $media->id
         ]);
-        
-        $presence = $presence->where('id', $presence->id)->first();
 
-        return $presence;
-        
+        return response()->json([
+            "success" => true,
+            "messages" => "You have been clocked in succesfully, don't forget to clock out",
+        ]);
+    }
+
+    public function clockOut()
+    {
+        $presence = Presences::whereBelongsTo(Auth::user())->whereDate('created_at', Carbon::today());
+        $presence->update([
+            'clock_out' => Carbon::now(),
+        ]);
+
+        return response()->json([
+            "success" => true,
+            "messages" => "You have been clocked out succesfully",
+        ]);
     }
 }

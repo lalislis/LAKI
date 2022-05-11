@@ -29,12 +29,18 @@ class DashboardController extends Controller
     public function clockToday()
     {
         $user = Auth::user();
-        $presence = Presences::whereBelongsTo($user)->whereDate('created_at', Carbon::today())->firstOrCreate([
-            'user_id' => $user->id,
-            'media_id' => null,
-            'clock_in' => null,
-            'clock_out' => null
-        ]);
+        $presence = Presences::whereBelongsTo($user)->whereDate('created_at', Carbon::today())
+            ->with('media')
+            ->first();
+
+        if (!$presence) {
+            Presences::create([
+                'user_id' => $user->id,
+                'media_id' => null,
+                'clock_in' => null,
+                'clock_out' => null
+            ]);
+        }
 
         return response()->json([
             'success' => true,
