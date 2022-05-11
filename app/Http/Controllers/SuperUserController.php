@@ -3,136 +3,153 @@
 namespace App\Http\Controllers;
 
 use App\Models\{User, Profiles, Media, Task, Companies};
-use Auth;
 use Illuminate\Http\Request;
-use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
 
 class SuperUserController extends Controller
 {
-    public function index(Request $request){
-        $karyawan = Profiles::whereHas('user', function($query){
-            $query->where('role', '1');
-        })
-        ->where('company_id', Auth::user()->profile->company_id)
-        ->with('user.tasks')
-        ->with('media:id,storage_path')
-        ->get()
-        ->map
-        ->only('id', 'media_id', 'name', 'position', 'user','media')
-        ;
-       
-        if($request->has('search')){
-            $search = $request->search;
-            $karyawan = $karyawan = Profiles::whereHas('user', function($query){
-                $query->where('role', '1');
-            })
-            ->where('company_id', Auth::user()->profile->company_id)
-            ->where('name', 'like', '%'.$search.'%')
-            ->with(['user.task', 'media:id,storage_path'])
-            ->get()
-            ->map
-            ->only('id', 'media_id', 'name', 'position', 'user','media')
-            ;
-            if($karyawan->isEmpty()){
-                return response()->json([
-                    'success' => false,
-                    'messages' => 'Data Cannot be Retrieved',
-                ]);
-            }
-        }
-        if($request->has('sortby')){
-            $sortby = $request->sortby;
-            $karyawan->orderBy($sortby, 'asc');
-        }
+    public function index(Request $request)
+    {
+        // $karyawan = Profiles::whereHas('user', function ($query) {
+        //     $query->where('role', '1');
+        // })
+        //     ->where('company_id', Auth::user()->profile->company_id)
+        //     ->with('user.tasks')
+        //     ->with('media:id,storage_path')
+        //     ->get()
+        //     ->map
+        //     ->only('id', 'media_id', 'name', 'position', 'user', 'media');
+
+        $employee = Profiles::where('company_id', Auth::user()->profile->company_id)
+            ->with('user.tasks', fn ($query) => $query->latest())
+            ->latest()
+            ->get();
+
+        // if ($request->has('search')) {
+        //     $search = $request->search;
+        //     $karyawan = $karyawan = Profiles::whereHas('user', function ($query) {
+        //         $query->where('role', '1');
+        //     })
+        //         ->where('company_id', Auth::user()->profile->company_id)
+        //         ->where('name', 'like', '%' . $search . '%')
+        //         ->with(['user.task', 'media:id,storage_path'])
+        //         ->get()
+        //         ->map
+        //         ->only('id', 'media_id', 'name', 'position', 'user', 'media');
+        //     if ($karyawan->isEmpty()) {
+        //         return response()->json([
+        //             'success' => false,
+        //             'messages' => 'Data Cannot be Retrieved',
+        //         ]);
+        //     }
+        // }
+        // if ($request->has('sortby')) {
+        //     $sortby = $request->sortby;
+        //     $karyawan->orderBy($sortby, 'asc');
+        // }
 
         return response()->json([
             'success' => true,
             'messages' => 'Data Retrieved Succesfully',
-            'data' => $karyawan   
+            'data' => $employee,
         ]);
     }
 
-    public function showCompany(Request $request){
+    public function showCompany()
+    {
         $company = Companies::where('id', Auth::user()->profile->company_id)->first();
         $company['total_employee'] = Profiles::where('company_id', Auth::user()->profile->company_id)->count();
-        $company['total_online'] = Profiles::where('company_id', Auth::user()->profile->company_id)->whereHas('user', function($query){
+        $company['total_online'] = Profiles::where('company_id', Auth::user()->profile->company_id)->whereHas('user', function ($query) {
             $query->where('status', '1');
         })->count();
+
         return response()->json([
             'success' => true,
             'messages' => 'Data Retrieved Succesfully',
-            'data' => [
-                'id' => $company->id,
-                'name' => $company->name,
-                'address' => $company->address,
-                'phone' => $company->phone,
-                'email' => $company->email,
-                'website' => $company->website,
-                'total_employee' => $company['total_employee'],
-                'total_online' => $company['total_online'],
-            ]
+            'data' => $company,
         ]);
     }
 
-    public function showKaryawan(){
-        $karyawan = User::where('id', Auth::user()->id)->with('profile')->first();
-        if($karyawan->status == true){
-            $status = 'Online';
-        }
-        else{
-            $status = 'Offline';
-        }
+    public function allEmployeeAccounts()
+    {
+        $users = User::whereHas(
+            'profile',
+            fn ($query) => $query
+                ->where('company_id', Auth::user()->profile->company_id)
+        )
+            ->with('profile')
+            ->latest()
+            ->get();
+
+        $index = $users->search(fn ($user) => $user->id == Auth::user()->id);
+        $users->pull($index);
+        $users = $users->values();
+
         return response()->json([
             'success' => true,
             'messages' => 'Data Retrieved Succesfully',
-            'data' => [
-                'id' => $karyawan->id, 
-                'email' => $karyawan->email, 
-                'profile' => [
-                    'id' => $karyawan->profile->id,
-                    'user_id' => $karyawan->profile->user_id,
-                    'name' => $karyawan->profile->name,
-                    'position' => $karyawan->profile->position,
-                    'status' => $status
-                ]]
+            'data' => $users,
         ]);
     }
 
-    public function deleteKaryawan(User $user){
-        Profiles::where('user_id', $user->id)->delete();
+    public function deleteKaryawan(User $user)
+    {
+        if ($user->role !== 1) {
+            return response()->json([
+                'success' => false,
+                'messages' => 'The account cannot be deleted',
+                'data' => ''
+            ], 422);
+        }
+
+        $user->profile()->delete();
         $user->delete();
 
         return response()->json([
             'success' => true,
-            'message' => 'The account has been deleted'
+            'messages' => 'The account has been deleted'
         ]);
     }
 
-    public function createKaryawan(Request $request){
+    public function createKaryawan(Request $request)
+    {
         $superuser = Auth::user();
-        $request->validate([
-            'name' => 'required',
-            'email' => 'required',
-            'password' => 'required',
-            'position' => 'required',
-            'confirm_password' => 'required_with:password|same:password'
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string',
+            'email' => 'required|email|unique:users',
+            'password' => 'required|string',
+            'position' => 'required|string',
+            'confirm_password' => 'required|required_with:password|same:password'
         ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'validations' => $validator->errors(),
+                'data' => ''
+            ], 422);
+        }
 
         $user = User::create([
             'email' => $request->email,
-            'password' => bcrypt($request->password),
+            'password' => Hash::make($request->password),
             'role' => 1
         ]);
 
-        $profile = Profiles::create([
+        $media = Media::create([
+            'storage_path' => Media::DEFAULT_USER,
+        ]);
+
+        Profiles::create([
             'user_id' => $user->id,
             'name' => $request->name,
             'position' => $request->position,
-            'media_id' => '1',
+            'media_id' => $media->id,
             'company_id' => $superuser->profile->company_id
         ]);
 
-        $data = Profiles::where('id', $profile->id)->first();
         return response()->json([
             'success' => true,
             'message' => 'The account has been created',

@@ -75,9 +75,9 @@ class AdminController extends Controller
         if ($user->role !== 2) {
             return response()->json([
                 'success' => false,
-                'messages' => 'Role user yang diingin dihapus tidak sesuai',
+                'messages' => 'The account cannot be deleted',
                 'data' => ''
-            ], 401);
+            ], 422);
         }
 
         $user->profile()->delete();

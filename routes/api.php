@@ -45,7 +45,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::group(['prefix' => 'superuser'], function () {
         Route::get('/user-profiles', 'SuperUserController@index');
         Route::get('/info-company', 'SuperUserController@showCompany');
-        Route::get('/users', 'SuperUserController@showKaryawan');
+        Route::get('/users', 'SuperUserController@allEmployeeAccounts');
         Route::delete('/users/{user:id}', 'SuperUserController@deleteKaryawan');
         Route::post('/users', 'SuperUserController@createKaryawan');
     });
