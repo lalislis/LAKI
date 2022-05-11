@@ -59,9 +59,10 @@ class User extends Authenticatable
         return $this->hasMany(Presences::class);
     }
 
-    public function sendPasswordResetNotification($token){
-        $baseURL = 'http://localhost:8000/api/auth/';
-        $url = $baseURL . 'password-reset?token=' . $token;
+    public function sendPasswordResetNotification($token)
+    {
+        $baseURL = config('app.fe_url');
+        $url = $baseURL . '/reset-password?token=' . $token;
 
         $this->notify(new ResetPasswordNotification($url));
     }

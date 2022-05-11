@@ -9,9 +9,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Auth\Events\PasswordReset;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password as RulesPassword;
+use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
@@ -23,7 +23,7 @@ class AuthController extends Controller
             'password' => ['required', 'string'],
         ]);
 
-        if($validator->fails()) {
+        if ($validator->fails()) {
             return response()->json([
                 'success' => false,
                 'validations' => $validator->errors(),
@@ -32,7 +32,7 @@ class AuthController extends Controller
         }
 
         $credentials = request(['email', 'password']);
-        if(!Auth::attempt($credentials)){
+        if (!Auth::attempt($credentials)) {
             return response()->json([
                 'success' => false,
                 'message' => 'Email atau Password salah',
@@ -66,7 +66,7 @@ class AuthController extends Controller
             'company_id' => ['required', 'integer'],
         ]);
 
-        if($validator->fails()) {
+        if ($validator->fails()) {
             return response()->json([
                 'success' => false,
                 'validations' => $validator->errors(),
@@ -99,29 +99,39 @@ class AuthController extends Controller
         ]);
     }
 
-    public function logout(){
+    public function logout()
+    {
         $user = auth()->user();
         $user->tokens()->delete();
         $user->status = false;
-        $user->update();
+        $user->save();
         return response()->json([
             'success' => true,
             'messages' => 'Success Logout',
         ]);
     }
 
-    public function reset(Request $request){
-        $request->validate([
+    public function reset(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
             'token' => 'required',
             'email' => 'required|email',
-            'password' => ['required', 'confirmed', 'min:8', RulesPassword::defaults()],
+            'password' => ['required', 'confirmed'],
         ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'validations' => $validator->errors(),
+                'data' => ''
+            ], 422);
+        }
 
         $status = Password::reset(
             $request->only('email', 'password', 'password_confirmation', 'token'),
             function ($user) use ($request) {
                 $user->forceFill([
-                    'password' => bcrypt($request->password)
+                    'password' => Hash::make($request->password)
                 ])->save();
 
                 $user->tokens()->delete();
@@ -139,29 +149,36 @@ class AuthController extends Controller
 
         return response([
             'success' => false,
-            'message'=> __($status)
-        ], 500);
-
+            'message' => __($status)
+        ], 422);
     }
 
-    public function forgotPassword(Request $request){
-        $request->validate([
+    public function forgotPassword(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
             'email' => 'required|email|exists:users',
         ]);
 
-        $status = Password::sendResetLink(
-            $request->only('email'),
-        );
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'validations' => $validator->errors(),
+                'data' => ''
+            ], 422);
+        }
 
-        if($status == Password::RESET_LINK_SENT){
+        $status = Password::sendResetLink($request->only('email'));
+
+        if ($status == Password::RESET_LINK_SENT) {
             return response()->json([
                 'success' => true,
                 'messages' => 'Reset token has been sent to your email!',
             ]);
         }
-        throw ValidationException::withMessages([
-            'email' => [trans($status)],
-        ]);
 
+        return response([
+            'success' => false,
+            'message' => __($status)
+        ], 422);
     }
 }
