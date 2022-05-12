@@ -17,7 +17,10 @@ class DashboardController extends Controller
         $user = Auth::user();
         $profile = Profiles::whereBelongsTo($user)->first();
         $task = Task::whereBelongsTo($user)->latest()->get();
-        $totalPresence = Presences::whereBelongsTo($user)->get()->count();
+        $totalPresence = Presences::whereBelongsTo($user)
+            ->whereNotNull('clock_in')
+            ->get()
+            ->count();
 
         $fromDate = Carbon::parse($profile->created_at);
         $toDate = Carbon::today();
