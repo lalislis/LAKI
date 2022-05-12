@@ -17,12 +17,22 @@ class DashboardController extends Controller
         $user = Auth::user();
         $profile = Profiles::whereBelongsTo($user)->first();
         $task = Task::whereBelongsTo($user)->latest()->get();
+        $totalPresence = Presences::whereBelongsTo($user)->get()->count();
+
+        $fromDate = Carbon::parse($profile->created_at);
+        $toDate = Carbon::today();
+
+        $totalDays = $fromDate->toDateString() === $toDate->toDateString()
+            ? 1
+            : ($fromDate->diffInDaysFiltered(fn (Carbon $date) => !$date->isWeekend(), $toDate)) + 1;
 
         return response()->json([
             'success' => true,
             'messages' => 'Data retrieved succesfully',
             'data' => collect($profile)->put('tasks', $task ?? [])
-                ->put('email', $user->email),
+                ->put('email', $user->email)
+                ->put('total_presences', $totalPresence)
+                ->put('total_days', $totalDays),
         ]);
     }
 
