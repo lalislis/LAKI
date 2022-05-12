@@ -20,7 +20,7 @@ class CompaniesFactory extends Factory
             'name' => $this->faker->company(),
             'address' => $this->faker->address(),
             'phone' => $this->faker->e164PhoneNumber(),
-            'email' => $this->faker->unique()->safeEmail,
+            'email' => $this->faker->companyEmail(),
             'website' => $this->faker->domainName(),
         ];
     }

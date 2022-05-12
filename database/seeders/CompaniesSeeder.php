@@ -15,9 +15,12 @@ class CompaniesSeeder extends Seeder
      */
     public function run()
     {
-        foreach (Media::all()->pluck('id') as $id) {
-            Companies::factory(1)->create([
-                'media_id' => $id,
+        $factoryCount = 10;
+        for ($i = 0; $i < $factoryCount; $i++) {
+            $media = Media::create(['storage_path' => Media::DEFAULT_COMPANY]);
+
+            Companies::factory()->create([
+                'media_id' => $media->id,
             ]);
         }
     }

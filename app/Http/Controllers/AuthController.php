@@ -116,7 +116,8 @@ class AuthController extends Controller
         $validator = Validator::make($request->all(), [
             'token' => 'required',
             'email' => 'required|email',
-            'password' => ['required', 'confirmed'],
+            'password' => 'required|min:8',
+            'confirm_password' => 'required|same:password',
         ]);
 
         if ($validator->fails()) {
@@ -128,7 +129,7 @@ class AuthController extends Controller
         }
 
         $status = Password::reset(
-            $request->only('email', 'password', 'password_confirmation', 'token'),
+            $request->only('email', 'password', 'confirm_password', 'token'),
             function ($user) use ($request) {
                 $user->forceFill([
                     'password' => Hash::make($request->password)
@@ -143,13 +144,13 @@ class AuthController extends Controller
         if ($status == Password::PASSWORD_RESET) {
             return response([
                 'success' => true,
-                'message' => 'Password reset successfully'
+                'messages' => 'Password reset successfully'
             ]);
         }
 
         return response([
             'success' => false,
-            'message' => __($status)
+            'messages' => __($status)
         ], 422);
     }
 

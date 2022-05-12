@@ -17,8 +17,6 @@ class MediaFactory extends Factory
      */
     public function definition()
     {
-        return [
-            'storage_path' => $this->faker->randomElement([Media::DEFAULT_COMPANY, Media::DEFAULT_USER])
-        ];
+        return [];
     }
 }
