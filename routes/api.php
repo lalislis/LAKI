@@ -43,7 +43,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/admin/companies', 'AdminController@registerCompany');
     Route::get('/admin/companies', 'AdminController@getCompanies');
     Route::get('/employees', 'KaryawanController@index');
-    Route::group(['prefix' => 'superuser'], function () {
+    Route::group(['prefix' => 'superuser', 'middleware' => 'cors'], function () {
         Route::get('/user-profiles', 'SuperUserController@index');
         Route::get('/info-company', 'SuperUserController@showCompany');
         Route::get('/users', 'SuperUserController@allEmployeeAccounts');
