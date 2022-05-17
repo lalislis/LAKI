@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Companies;
 use App\Models\Media;
 use App\Models\Profiles;
+use App\Models\Task;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Faker\Factory as Faker;
@@ -41,12 +42,18 @@ class UserSeeder extends Seeder
                     'storage_path' => Media::DEFAULT_USER,
                 ]);
 
-                Profiles::create([
+                $profile = Profiles::create([
                     'name' => $firstName . ' ' . $lastName,
                     'position' => $this->faker->jobTitle(),
                     'company_id' => $companyId,
                     'user_id' => $user->id,
                     'media_id' => $media->id,
+                ]);
+
+                Task::create([
+                    'user_id' => $user->id,
+                    'title' => $profile->name,
+                    'body' => $this->faker->text(100),
                 ]);
             }
 
@@ -71,12 +78,18 @@ class UserSeeder extends Seeder
                     'storage_path' => Media::DEFAULT_USER,
                 ]);
 
-                Profiles::create([
+                $profile = Profiles::create([
                     'name' => $firstName . ' ' . $lastName,
                     'position' => $this->faker->jobTitle(),
                     'company_id' => $companyId,
                     'user_id' => $user->id,
                     'media_id' => $media->id,
+                ]);
+
+                Task::create([
+                    'user_id' => $user->id,
+                    'title' => $profile->name,
+                    'body' => $this->faker->text(100),
                 ]);
             }
         });
