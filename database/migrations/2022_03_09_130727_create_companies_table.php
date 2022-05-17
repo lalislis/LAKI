@@ -19,7 +19,7 @@ return new class extends Migration
             $table->text('address');
             $table->string('phone');
             $table->string('email');
-            $table->string('website');
+            $table->string('website')->nullable();
             $table->foreignId('media_id');
             $table->timestamps();
             $table->softDeletes();
