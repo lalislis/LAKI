@@ -21,7 +21,6 @@ class CompaniesFactory extends Factory
             'address' => $this->faker->address(),
             'phone' => $this->faker->e164PhoneNumber(),
             'email' => $this->faker->companyEmail(),
-            'website' => $this->faker->domainName(),
         ];
     }
 }

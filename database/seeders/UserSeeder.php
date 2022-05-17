@@ -103,7 +103,6 @@ class UserSeeder extends Seeder
             'address' => "Jl. Administator",
             'phone' => $this->faker->e164PhoneNumber(),
             'email' => "admin@admin.com",
-            'website' => $this->faker->domainName(),
             'media_id' => $mediaCompany->id,
         ]);
 
