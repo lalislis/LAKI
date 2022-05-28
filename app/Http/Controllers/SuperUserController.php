@@ -24,6 +24,7 @@ class SuperUserController extends Controller
 
         $employee = Profiles::where('company_id', Auth::user()->profile->company_id)
             ->with('user.tasks', fn ($query) => $query->latest())
+            ->with('user.presences', fn ($query) => $query->latest()->with('media'))
             ->latest()
             ->get();
 
